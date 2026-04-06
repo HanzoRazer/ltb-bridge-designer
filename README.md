@@ -1,66 +1,43 @@
 # ltb-bridge-designer
 
-LTB Bridge Designer - Bridge geometry and string spacing calculator
+Acoustic and electric bridge geometry: scale-to-bridge placement, pin positions, break angle, string tension, archtop floating bridge (Benedetto), electric bridge presets, Floyd Rose routing, saddle compensation, CAM presets, and DXF export.
 
-## Status
+**Source of truth:** [luthiers-toolbox](https://github.com/HanzoRazer/luthiers-toolbox) — populated via **Staged Copy Publish** (see `SPRINTS.md` there).
 
-🚧 **Minimal Skeleton** - Features extracted from golden master as needed.
+## Layout
 
-**Strategy:** Lean extraction (no template stubs)  
-**Approach:** Clean slate → Extract specific features incrementally  
-**Benefit:** Only includes code that's actually implemented
-
-## Quick Start
-
-### Server (FastAPI)
-
-**Dependencies already installed!** Just activate and run:
-
-```powershell
-cd server
-.\.venv\Scripts\Activate.ps1
-copy .env.example .env
-uvicorn app.main:app --reload
+```
+src/ltb_bridge/
+  calculators/           # bridge_calc, bridge_break_angle, acoustic_bridge_calc, string_tension
+  instrument_geometry/
+    models.py            # InstrumentModelId, specs (shared with bridge/neck)
+    neck/neck_profiles.py
+    bridge/              # geometry, placement, compensation, archtop_floating_bridge, electric_bridges, floyd_rose_tremolo
+  api/
+    bridge_router.py
+    bridge_presets_router.py
+    bridge_export_router.py
+  main.py
+scripts/populate_imports.py   # optional re-sync helper
 ```
 
-**If you need to reinstall:**
+## API
 
-```powershell
-cd server
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+```bash
+pip install -e .
+uvicorn ltb_bridge.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Client Setup
+- `GET /health`
+- `GET /docs`
+- `POST /api/instrument/bridge`, `/api/instrument/bridge/pin-positions`, `GET /api/instrument/bridge/options`
+- Presets: `/api/cam/bridge/...` (see OpenAPI)
+- DXF: `POST /api/cam/bridge/export_dxf`
 
-```powershell
-cd client
-npm create vite@latest . -- --template vue-ts
-npm install
-npm run dev
-```
+## Dependencies
 
-## Extracting Features
-
-1. Identify feature in [Golden Master](https://github.com/HanzoRazer/luthiers-toolbox)
-2. Copy specific files/components needed
-3. Strip unnecessary features (downgrade to edition tier)
-4. Test extraction
-5. Commit with clear feature description
-
-## Documentation
-
-- [Product Segmentation Strategy](https://github.com/HanzoRazer/luthiers-toolbox/blob/main/docs/products/MASTER_SEGMENTATION_STRATEGY.md)
-- [Setup Guide](https://github.com/HanzoRazer/luthiers-toolbox/blob/main/PRODUCT_REPO_SETUP.md)
-
-## Related Repositories
-
-- [Golden Master](https://github.com/HanzoRazer/luthiers-toolbox) - Main repository with templates and documentation
-- [Express Edition](https://github.com/HanzoRazer/ltb-express)
-- [Pro Edition](https://github.com/HanzoRazer/ltb-pro)
-- [Enterprise Edition](https://github.com/HanzoRazer/ltb-enterprise)
+Python 3.11+. `ezdxf` is required for archtop DXF generation in `archtop_floating_bridge`.
 
 ## License
 
-Copyright © 2025 Luthier's ToolBox Project
+See `LICENSE`.
